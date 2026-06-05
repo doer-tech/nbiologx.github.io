@@ -1,0 +1,1767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NBiologx — Nepal's Plasma-Derived Medicines Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #080c10;
+      --bg2:      #0d1219;
+      --bg3:      #111820;
+      --surface:  #141d27;
+      --border:   rgba(99,180,255,0.10);
+      --accent:   #3db8ff;
+      --accent2:  #00e5b0;
+      --text:     #dce8f5;
+      --muted:    #6b8aaa;
+      --heading:  #f0f8ff;
+      --glow:     rgba(61,184,255,0.18);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* ── NOISE TEXTURE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: .5;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.2rem 5%;
+      background: rgba(8,12,16,0.82);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.35rem;
+      color: var(--heading);
+      letter-spacing: -.02em;
+      text-decoration: none;
+    }
+
+    .nav-logo span { color: var(--accent); }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: .9rem;
+      font-weight: 500;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      transition: color .25s;
+    }
+
+    .nav-links a:hover { color: var(--accent); }
+
+    .nav-cta {
+      background: var(--accent);
+      color: #040810 !important;
+      padding: .5rem 1.2rem;
+      border-radius: 6px;
+      font-weight: 600 !important;
+      transition: background .25s, box-shadow .25s !important;
+    }
+
+    .nav-cta:hover {
+      background: #6fd0ff !important;
+      box-shadow: 0 0 24px var(--glow);
+      color: #040810 !important;
+    }
+
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 4px;
+    }
+
+    .hamburger span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: var(--text);
+      border-radius: 2px;
+      transition: all .3s;
+    }
+
+    /* ── HERO ── */
+    #hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 8rem 5% 5rem;
+      overflow: hidden;
+    }
+
+    /* radial glow blobs */
+    .hero-glow {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(100px);
+      pointer-events: none;
+      animation: drift 14s ease-in-out infinite alternate;
+    }
+
+    .hero-glow.a {
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(61,184,255,.12) 0%, transparent 70%);
+      top: -100px; left: -200px;
+    }
+
+    .hero-glow.b {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(0,229,176,.10) 0%, transparent 70%);
+      bottom: -80px; right: -150px;
+      animation-delay: -7s;
+    }
+
+    @keyframes drift {
+      from { transform: translate(0,0) scale(1); }
+      to   { transform: translate(40px,30px) scale(1.08); }
+    }
+
+    /* molecule grid background */
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black, transparent);
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      background: rgba(61,184,255,.08);
+      border: 1px solid rgba(61,184,255,.25);
+      color: var(--accent);
+      font-size: .78rem;
+      font-weight: 600;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      padding: .45rem 1.1rem;
+      border-radius: 100px;
+      margin-bottom: 2rem;
+      animation: fadeUp .8s ease both;
+    }
+
+    .hero-badge::before {
+      content: '';
+      width: 6px; height: 6px;
+      background: var(--accent2);
+      border-radius: 50%;
+      animation: pulse 2s ease infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: .5; transform: scale(1.6); }
+    }
+
+    h1.hero-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(2.6rem, 7vw, 5.5rem);
+      line-height: 1.05;
+      letter-spacing: -.03em;
+      color: var(--heading);
+      max-width: 900px;
+      animation: fadeUp .9s .1s ease both;
+    }
+
+    h1.hero-title em {
+      font-style: normal;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-tagline {
+      margin-top: 1.5rem;
+      font-size: clamp(1rem, 2.2vw, 1.25rem);
+      color: var(--muted);
+      max-width: 580px;
+      font-weight: 300;
+      animation: fadeUp 1s .2s ease both;
+    }
+
+    .hero-actions {
+      margin-top: 2.8rem;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      animation: fadeUp 1s .3s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .btn-primary {
+      display: inline-block;
+      background: var(--accent);
+      color: #040810;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600;
+      font-size: .95rem;
+      padding: .85rem 2.2rem;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: all .25s;
+      box-shadow: 0 4px 30px rgba(61,184,255,.25);
+    }
+
+    .btn-primary:hover {
+      background: #6fd0ff;
+      box-shadow: 0 6px 40px rgba(61,184,255,.4);
+      transform: translateY(-2px);
+    }
+
+    .btn-ghost {
+      display: inline-block;
+      background: transparent;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      font-size: .95rem;
+      padding: .85rem 2.2rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      text-decoration: none;
+      transition: all .25s;
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(61,184,255,.05);
+    }
+
+    .hero-stats {
+      margin-top: 4.5rem;
+      display: flex;
+      gap: 3rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      animation: fadeUp 1s .5s ease both;
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: .78rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      margin-top: .3rem;
+    }
+
+    /* ── SHARED SECTION STYLES ── */
+    section { position: relative; z-index: 1; }
+
+    .section-label {
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: .75rem;
+    }
+
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      color: var(--heading);
+      line-height: 1.15;
+      letter-spacing: -.02em;
+    }
+
+    .section-subtitle {
+      color: var(--muted);
+      font-size: 1.05rem;
+      max-width: 560px;
+      margin-top: .8rem;
+      font-weight: 300;
+    }
+
+    /* ── ABOUT ── */
+    #about {
+      padding: 7rem 5%;
+      background: var(--bg2);
+    }
+
+    .about-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+      align-items: start;
+    }
+
+    .about-left {}
+
+    .about-right {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      padding-top: .5rem;
+    }
+
+    .about-text {
+      color: var(--text);
+      font-size: 1.025rem;
+      line-height: 1.85;
+    }
+
+    .about-text + .about-text {
+      color: var(--muted);
+    }
+
+    .about-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .card-mini {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.3rem 1.4rem;
+      transition: border-color .3s, transform .3s;
+    }
+
+    .card-mini:hover {
+      border-color: rgba(61,184,255,.4);
+      transform: translateY(-3px);
+    }
+
+    .card-mini-icon {
+      font-size: 1.5rem;
+      margin-bottom: .6rem;
+    }
+
+    .card-mini-title {
+      font-family: 'Syne', sans-serif;
+      font-size: .9rem;
+      font-weight: 700;
+      color: var(--heading);
+      letter-spacing: -.01em;
+    }
+
+    .card-mini-desc {
+      font-size: .8rem;
+      color: var(--muted);
+      margin-top: .3rem;
+      line-height: 1.55;
+    }
+
+    /* mission statement box */
+    .mission-box {
+      background: linear-gradient(135deg, rgba(61,184,255,.07) 0%, rgba(0,229,176,.07) 100%);
+      border: 1px solid rgba(61,184,255,.2);
+      border-radius: 14px;
+      padding: 2rem 2.2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mission-box::before {
+      content: '"';
+      position: absolute;
+      top: -1rem; left: 1.5rem;
+      font-family: 'Syne', sans-serif;
+      font-size: 8rem;
+      font-weight: 800;
+      color: var(--accent);
+      opacity: .07;
+      line-height: 1;
+    }
+
+    .mission-box p {
+      font-size: 1.05rem;
+      color: var(--text);
+      line-height: 1.8;
+      font-style: italic;
+      font-weight: 300;
+    }
+
+    /* ── OPPORTUNITY / PHASES ── */
+    #opportunity {
+      padding: 7rem 5%;
+      background: var(--bg);
+    }
+
+    .opportunity-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    .opp-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 2rem;
+      margin-bottom: 4rem;
+      flex-wrap: wrap;
+    }
+
+    .phases-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.2rem;
+    }
+
+    .phase-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem 1.6rem;
+      position: relative;
+      overflow: hidden;
+      transition: border-color .3s, transform .3s, box-shadow .3s;
+    }
+
+    .phase-card:hover {
+      border-color: rgba(61,184,255,.45);
+      transform: translateY(-5px);
+      box-shadow: 0 16px 48px rgba(0,0,0,.4);
+    }
+
+    .phase-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      opacity: 0;
+      transition: opacity .3s;
+    }
+
+    .phase-card:hover::before { opacity: 1; }
+
+    .phase-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 3rem;
+      font-weight: 800;
+      color: rgba(61,184,255,.12);
+      line-height: 1;
+      margin-bottom: .8rem;
+    }
+
+    .phase-label {
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--accent2);
+      margin-bottom: .5rem;
+    }
+
+    .phase-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--heading);
+      line-height: 1.25;
+      margin-bottom: .8rem;
+    }
+
+    .phase-desc {
+      font-size: .85rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .phase-outcome {
+      margin-top: 1.2rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      font-size: .78rem;
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    /* market band */
+    .market-band {
+      margin-top: 3rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2.5rem 2.8rem;
+      display: flex;
+      align-items: center;
+      gap: 3rem;
+      flex-wrap: wrap;
+    }
+
+    .market-band-text { flex: 1; min-width: 220px; }
+    .market-band-text h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--heading);
+    }
+
+    .market-band-text p {
+      color: var(--muted);
+      font-size: .9rem;
+      margin-top: .4rem;
+    }
+
+    .market-products {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .6rem;
+    }
+
+    .tag {
+      display: inline-block;
+      background: rgba(61,184,255,.08);
+      border: 1px solid rgba(61,184,255,.2);
+      color: var(--accent);
+      font-size: .78rem;
+      font-weight: 500;
+      padding: .4rem .9rem;
+      border-radius: 100px;
+      letter-spacing: .03em;
+    }
+
+    /* ── TEAM ── */
+    #team {
+      padding: 7rem 5%;
+      background: var(--bg2);
+    }
+
+    .team-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    .team-header { margin-bottom: 3.5rem; }
+
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .team-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      overflow: hidden;
+      transition: transform .3s, border-color .3s, box-shadow .3s;
+    }
+
+    .team-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(61,184,255,.4);
+      box-shadow: 0 20px 60px rgba(0,0,0,.5);
+    }
+
+    .team-avatar {
+      width: 100%;
+      aspect-ratio: 1/1;
+      background: linear-gradient(135deg, var(--bg3) 0%, #182030 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 2.6rem;
+      color: var(--accent);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .team-avatar::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(61,184,255,.06) 0%, rgba(0,229,176,.06) 100%);
+    }
+
+    /* Avatar initials colour sets */
+    .team-card:nth-child(2) .team-avatar { color: var(--accent2); }
+    .team-card:nth-child(3) .team-avatar { color: #f5a623; }
+    .team-card:nth-child(4) .team-avatar { color: #c87dff; }
+
+    .team-info {
+      padding: 1.5rem 1.6rem 1.8rem;
+    }
+
+    .team-role {
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: .45rem;
+    }
+
+    .team-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--heading);
+      line-height: 1.2;
+      margin-bottom: .7rem;
+    }
+
+    .team-bio {
+      font-size: .83rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* ── GALLERY ── */
+    #gallery {
+      padding: 7rem 5%;
+      background: var(--bg);
+    }
+
+    .gallery-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    .gallery-header { margin-bottom: 3rem; }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: auto auto;
+      gap: 1.2rem;
+    }
+
+    .gallery-item {
+      border-radius: 14px;
+      overflow: hidden;
+      position: relative;
+      aspect-ratio: 4/3;
+      background: var(--surface);
+      cursor: pointer;
+      border: 1px solid var(--border);
+      transition: transform .4s, border-color .4s;
+    }
+
+    .gallery-item:hover {
+      transform: scale(1.025);
+      border-color: rgba(61,184,255,.4);
+    }
+
+    .gallery-item.large {
+      grid-column: span 2;
+      aspect-ratio: 16/9;
+    }
+
+    /* SVG placeholder visuals */
+    .gallery-placeholder {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+
+    .gallery-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(8,12,16,.95) 0%, transparent 50%);
+      opacity: 0;
+      transition: opacity .35s;
+      display: flex;
+      align-items: flex-end;
+      padding: 1.5rem;
+    }
+
+    .gallery-item:hover .gallery-overlay { opacity: 1; }
+
+    .gallery-caption {
+      font-family: 'Syne', sans-serif;
+      font-size: .9rem;
+      font-weight: 700;
+      color: var(--heading);
+    }
+
+    .gallery-caption small {
+      display: block;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .75rem;
+      font-weight: 400;
+      color: var(--muted);
+      margin-top: .2rem;
+    }
+
+    /* ── PARTNERS ── */
+    #partners {
+      padding: 5rem 5%;
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .partners-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .partners-label {
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 2.5rem;
+    }
+
+    .partners-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+    }
+
+    .partner-badge {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: .82rem;
+      font-weight: 500;
+      padding: .7rem 1.4rem;
+      border-radius: 10px;
+      letter-spacing: .02em;
+      transition: color .25s, border-color .25s;
+    }
+
+    .partner-badge:hover {
+      color: var(--text);
+      border-color: rgba(61,184,255,.3);
+    }
+
+    /* ── CONTACT ── */
+    #contact {
+      padding: 7rem 5%;
+      background: var(--bg);
+    }
+
+    .contact-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1.1fr;
+      gap: 5rem;
+      align-items: start;
+    }
+
+    .contact-left {}
+
+    .contact-links {
+      margin-top: 2.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .contact-link-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      color: var(--text);
+      text-decoration: none;
+      font-size: .95rem;
+      transition: color .25s;
+    }
+
+    .contact-link-item:hover { color: var(--accent); }
+
+    .contact-icon {
+      width: 42px; height: 42px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+      transition: border-color .25s, background .25s;
+    }
+
+    .contact-link-item:hover .contact-icon {
+      border-color: rgba(61,184,255,.4);
+      background: rgba(61,184,255,.07);
+    }
+
+    /* FORM */
+    .contact-form {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2.5rem 2.8rem;
+    }
+
+    .form-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--heading);
+      margin-bottom: 1.8rem;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: .45rem;
+      margin-bottom: 1rem;
+    }
+
+    .form-group:last-of-type { margin-bottom: 0; }
+
+    label {
+      font-size: .78rem;
+      font-weight: 600;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    input, select, textarea {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: .95rem;
+      padding: .85rem 1.1rem;
+      outline: none;
+      width: 100%;
+      transition: border-color .25s, box-shadow .25s;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(61,184,255,.1);
+    }
+
+    input::placeholder, textarea::placeholder { color: #3a5168; }
+
+    select option { background: var(--bg3); }
+
+    textarea { resize: vertical; min-height: 130px; }
+
+    .form-submit {
+      width: 100%;
+      margin-top: 1.6rem;
+      background: var(--accent);
+      color: #040810;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      padding: 1rem;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      letter-spacing: .04em;
+      transition: background .25s, box-shadow .25s, transform .2s;
+    }
+
+    .form-submit:hover {
+      background: #6fd0ff;
+      box-shadow: 0 6px 30px rgba(61,184,255,.3);
+      transform: translateY(-2px);
+    }
+
+    /* ── NEPAL → WORLD BANNER ── */
+    .ntw-banner {
+      position: relative;
+      overflow: hidden;
+      padding: 6rem 5% 5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .ntw-glow-l {
+      position: absolute;
+      left: -100px; top: 50%;
+      transform: translateY(-50%);
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(61,184,255,.12) 0%, transparent 70%);
+      filter: blur(60px);
+      pointer-events: none;
+    }
+
+    .ntw-glow-r {
+      position: absolute;
+      right: -100px; top: 50%;
+      transform: translateY(-50%);
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(0,229,176,.12) 0%, transparent 70%);
+      filter: blur(60px);
+      pointer-events: none;
+    }
+
+    .ntw-arc {
+      width: 100%;
+      max-width: 900px;
+      margin-bottom: 2.5rem;
+      opacity: .85;
+    }
+
+    .ntw-eyebrow {
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: .75rem;
+    }
+
+    .ntw-headline {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(2.4rem, 6vw, 4.8rem);
+      color: var(--heading);
+      letter-spacing: -.03em;
+      line-height: 1.05;
+      margin-bottom: 1.5rem;
+    }
+
+    .ntw-arrow {
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 800;
+    }
+
+    .ntw-body {
+      max-width: 600px;
+      color: var(--muted);
+      font-size: 1.05rem;
+      line-height: 1.8;
+      font-weight: 300;
+      margin: 0 auto 2.5rem;
+    }
+
+    .ntw-pills {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .ntw-pill {
+      background: rgba(61,184,255,.07);
+      border: 1px solid rgba(61,184,255,.22);
+      color: var(--accent);
+      font-size: .82rem;
+      font-weight: 600;
+      padding: .55rem 1.3rem;
+      border-radius: 100px;
+      letter-spacing: .04em;
+      transition: all .25s;
+    }
+
+    .ntw-pill:hover {
+      background: rgba(61,184,255,.14);
+      transform: translateY(-2px);
+    }
+
+    .ntw-pill--mid {
+      background: rgba(61,184,255,.05);
+      border-color: rgba(61,184,255,.15);
+      color: var(--text);
+    }
+
+    .ntw-pill--world {
+      background: rgba(0,229,176,.07);
+      border-color: rgba(0,229,176,.22);
+      color: var(--accent2);
+    }
+
+    .ntw-pill--world:hover {
+      background: rgba(0,229,176,.14);
+    }
+
+
+    footer {
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      padding: 3rem 5%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+
+    .footer-logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.2rem;
+      color: var(--heading);
+    }
+
+    .footer-logo span { color: var(--accent); }
+
+    .footer-copy {
+      font-size: .82rem;
+      color: var(--muted);
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 1.5rem;
+      list-style: none;
+    }
+
+    .footer-links a {
+      font-size: .82rem;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color .25s;
+    }
+
+    .footer-links a:hover { color: var(--accent); }
+
+    /* ── DIVIDER ── */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 0;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .about-inner { grid-template-columns: 1fr; gap: 3rem; }
+      .phases-grid { grid-template-columns: 1fr 1fr; }
+      .contact-inner { grid-template-columns: 1fr; gap: 3rem; }
+      .gallery-grid { grid-template-columns: 1fr 1fr; }
+      .gallery-item.large { grid-column: span 2; }
+    }
+
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+      .hamburger { display: flex; }
+      .phases-grid { grid-template-columns: 1fr; }
+      .gallery-grid { grid-template-columns: 1fr; }
+      .gallery-item.large { grid-column: span 1; aspect-ratio: 4/3; }
+      .form-row { grid-template-columns: 1fr; }
+      .about-cards { grid-template-columns: 1fr; }
+      .hero-stats { gap: 1.8rem; }
+      footer { flex-direction: column; text-align: center; }
+      .contact-form { padding: 1.8rem; }
+    }
+
+    /* mobile nav */
+    .nav-links.open {
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 64px; left: 0; right: 0;
+      background: rgba(8,12,16,.97);
+      backdrop-filter: blur(20px);
+      padding: 2rem;
+      gap: 1.5rem;
+      border-bottom: 1px solid var(--border);
+      z-index: 99;
+    }
+
+    .nav-links.open a { font-size: 1.05rem; }
+
+  </style>
+</head>
+<body>
+
+<!-- ─────────────── NAV ─────────────── -->
+<nav>
+  <a class="nav-logo" href="#hero">N<span>Biologx</span></a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#about">About</a></li>
+    <li><a href="#opportunity">Strategy</a></li>
+    <li><a href="#team">Team</a></li>
+    <li><a href="#gallery">Gallery</a></li>
+    <li><a href="#contact" class="nav-cta">Contact Us</a></li>
+  </ul>
+  <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- ─────────────── HERO ─────────────── -->
+<section id="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow a"></div>
+  <div class="hero-glow b"></div>
+
+  <div class="hero-badge">From Nepal &nbsp;→&nbsp; To the World</div>
+
+  <h1 class="hero-title">
+    Born in Nepal.<br>
+    Built for the <em>World.</em>
+  </h1>
+
+  <p class="hero-tagline">
+    Transforming Nepal's blood resources into life-saving plasma-derived medicines —
+    for every patient at home, and every market beyond our borders.
+  </p>
+
+  <p class="hero-worldline" style="margin-top:1.1rem; font-size:.88rem; letter-spacing:.18em; text-transform:uppercase; color:var(--accent2); animation: fadeUp 1s .25s ease both; font-weight:600;">
+    Nepal &nbsp;·&nbsp; South Asia &nbsp;·&nbsp; Global
+  </p>
+
+  <div class="hero-actions">
+    <a href="#about" class="btn-primary">Discover Our Mission</a>
+    <a href="#contact" class="btn-ghost">Partner With Us</a>
+  </div>
+
+  <div class="hero-stats">
+    <div class="stat">
+      <div class="stat-num">USD 20–30M</div>
+      <div class="stat-label">Annual Market Opportunity</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">4</div>
+      <div class="stat-label">Development Phases</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">3+</div>
+      <div class="stat-label">Critical PDMP Products</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">WHO</div>
+      <div class="stat-label">Aligned Standards</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ─────────────── ABOUT ─────────────── -->
+<section id="about">
+  <div class="about-inner">
+    <div class="about-left">
+      <p class="section-label">About NBiologx</p>
+      <h2 class="section-title">Ensuring No Nepali Patient Is Left Without Care</h2>
+      <p class="section-subtitle">A biotechnology company built to close the gap between Nepal's plasma resources and patient need.</p>
+
+      <div class="about-cards">
+        <div class="card-mini">
+          <div class="card-mini-icon">🩸</div>
+          <div class="card-mini-title">Plasma Recovery</div>
+          <div class="card-mini-desc">Establishing fractionation-grade collection from Nepal's existing blood infrastructure.</div>
+        </div>
+        <div class="card-mini">
+          <div class="card-mini-icon">🏭</div>
+          <div class="card-mini-title">Domestic Manufacturing</div>
+          <div class="card-mini-desc">Reducing import dependency through local albumin production and fill-finish facilities.</div>
+        </div>
+        <div class="card-mini">
+          <div class="card-mini-icon">🔬</div>
+          <div class="card-mini-title">Advanced Biologics</div>
+          <div class="card-mini-desc">Expanding into IVIG, hyperimmune globulins and specialty plasma proteins.</div>
+        </div>
+        <div class="card-mini">
+          <div class="card-mini-icon">🌐</div>
+          <div class="card-mini-title">Regional Hub</div>
+          <div class="card-mini-desc">Building Nepal's first full-scale fractionation platform serving regional markets.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="about-right">
+      <div class="mission-box">
+        <p>Our mission is simple: ensure that no Nepali patient is denied access to essential plasma-derived medicines because of supply shortages, import dependency, or affordability barriers.</p>
+      </div>
+
+      <p class="about-text">
+        NBiologx is a Nepal-based biotechnology company established to develop the country's first integrated plasma recovery, plasma fractionation, and plasma-derived medicinal products (PDMPs) ecosystem.
+      </p>
+
+      <p class="about-text">
+        By leveraging Nepal's existing blood collection infrastructure and aligning with World Health Organization (WHO) recommendations, NBiologx aims to establish a nationally coordinated plasma utilization program — converting surplus plasma into high-value therapeutics including Human Albumin, Intravenous Immunoglobulin (IVIG), and Coagulation Factors.
+      </p>
+
+      <p class="about-text">
+        Every year, Nepal imports critical plasma-derived medicines for intensive care, liver disease, hemophilia, immunodeficiency disorders, neurological diseases, and trauma care — while significant volumes of recoverable plasma remain underutilized in the national blood system.
+      </p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ─────────────── OPPORTUNITY ─────────────── -->
+<section id="opportunity">
+  <div class="opportunity-inner">
+    <div class="opp-header">
+      <div>
+        <p class="section-label">Development Strategy</p>
+        <h2 class="section-title">A Phased, Low-Risk Pathway to Self-Sufficiency</h2>
+      </div>
+      <p style="color:var(--muted); max-width:360px; font-size:.9rem; line-height:1.7;">Rather than an immediate high-capital industrial facility, NBiologx follows internationally recognised phased development principles — reducing risk while accelerating impact.</p>
+    </div>
+
+    <div class="phases-grid">
+      <div class="phase-card">
+        <div class="phase-num">01</div>
+        <div class="phase-label">Phase I</div>
+        <div class="phase-title">National Plasma Recovery Program</div>
+        <div class="phase-desc">Establish fractionation-grade plasma collection, quality systems, donor traceability, and international contract fractionation partnerships.</div>
+        <div class="phase-outcome">→ Immediate production access without large-scale industrial infrastructure</div>
+      </div>
+      <div class="phase-card">
+        <div class="phase-num">02</div>
+        <div class="phase-label">Phase II</div>
+        <div class="phase-title">Domestic PDMP Manufacturing</div>
+        <div class="phase-desc">Develop albumin production, fill-finish facilities, quality control laboratories and national biologics manufacturing capability.</div>
+        <div class="phase-outcome">→ Import substitution and improved medicine accessibility</div>
+      </div>
+      <div class="phase-card">
+        <div class="phase-num">03</div>
+        <div class="phase-label">Phase III</div>
+        <div class="phase-title">Advanced Plasma Processing</div>
+        <div class="phase-desc">Expand capabilities for Intravenous Immunoglobulin, hyperimmune globulins and specialty plasma proteins.</div>
+        <div class="phase-outcome">→ Enhanced self-sufficiency and regional competitiveness</div>
+      </div>
+      <div class="phase-card">
+        <div class="phase-num">04</div>
+        <div class="phase-label">Phase IV</div>
+        <div class="phase-title">National Fractionation Facility</div>
+        <div class="phase-desc">Establish Nepal's first full-scale plasma fractionation platform producing a comprehensive portfolio of PDMPs.</div>
+        <div class="phase-outcome" style="color:var(--accent2);">→ From Nepal to the World: a regional manufacturing hub</div>
+      </div>
+    </div>
+
+    <div class="market-band">
+      <div class="market-band-text">
+        <h3>Annual Market Opportunity: USD 20–30 Million+</h3>
+        <p>Nepal's healthcare system currently depends on imported plasma-derived medicines across multiple therapeutic areas — with significant growth expected as diagnostic and specialty services expand.</p>
+      </div>
+      <div class="market-products">
+        <span class="tag">Human Albumin</span>
+        <span class="tag">IVIG</span>
+        <span class="tag">Factor VIII &amp; IX</span>
+        <span class="tag">Hyperimmune Globulins</span>
+        <span class="tag">Specialty Plasma Proteins</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ─────────────── TEAM ─────────────── -->
+<section id="team">
+  <div class="team-inner">
+    <div class="team-header">
+      <p class="section-label">Our Leadership</p>
+      <h2 class="section-title">The Team Behind NBiologx</h2>
+      <p class="section-subtitle">A multidisciplinary leadership team combining clinical expertise, business acumen, and national health policy experience.</p>
+    </div>
+
+    <div class="team-grid">
+      <div class="team-card">
+        <div class="team-avatar">AT</div>
+        <div class="team-info">
+          <div class="team-role">Chairman &amp; CEO</div>
+          <div class="team-name">Prof. Dr. Amit Thapa</div>
+          <div class="team-bio">MBBS, MS, MCh, IFAANS. Professor at Kathmandu University with over two decades of specialised neurosurgical expertise. President Elect, Nepalese Society of Neurosurgeon. Member, World Federation of Neurosurgical Societies.</div>
+        </div>
+      </div>
+
+      <div class="team-card">
+        <div class="team-avatar">SK</div>
+        <div class="team-info">
+          <div class="team-role">Vice President, Finance</div>
+          <div class="team-name">Mr. Sailesh Kadel</div>
+          <div class="team-bio">Entrepreneur and business leader with extensive experience in medical equipment distribution in Nepal. President of CHEMSAN — Chemical and Medical Suppliers' Association of Nepal. BE Electronics.</div>
+        </div>
+      </div>
+
+      <div class="team-card">
+        <div class="team-avatar">MP</div>
+        <div class="team-info">
+          <div class="team-role">Vice President, Operations</div>
+          <div class="team-name">Mr. Madan Raj Pandey</div>
+          <div class="team-bio">Senior Medical Laboratory Technologist. Executive Chairman, KMC Naya Lab Pvt. Ltd. Board of Directors, Nopera Impact Partners. Bringing deep laboratory operations and diagnostics leadership to the team.</div>
+        </div>
+      </div>
+
+      <div class="team-card">
+        <div class="team-avatar">DT</div>
+        <div class="team-info">
+          <div class="team-role">Vice President, Marketing</div>
+          <div class="team-name">Prof. Dr. Deeptara Pathak Thapa</div>
+          <div class="team-bio">MD (Dermatology &amp; STD), Fellowship in Aesthetic Medicine. Professor and Head, Department of Dermatology, Nepal Medical College. Vice President, SODVELON (2025–2027). Over 50 peer-reviewed publications.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ─────────────── GALLERY ─────────────── -->
+<section id="gallery">
+  <div class="gallery-inner">
+    <div class="gallery-header">
+      <p class="section-label">Gallery</p>
+      <h2 class="section-title">Our Vision in Progress</h2>
+      <p class="section-subtitle">From Nepal's blood banks to a national biologics ecosystem — every step grounded in science and national need.</p>
+    </div>
+
+    <div class="gallery-grid">
+
+      <!-- Card 1 — large -->
+      <div class="gallery-item large">
+        <div class="gallery-placeholder">
+          <svg width="100%" height="100%" viewBox="0 0 800 450" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+            <defs>
+              <radialGradient id="g1" cx="30%" cy="40%" r="70%">
+                <stop offset="0%" stop-color="#1a2e44"/>
+                <stop offset="100%" stop-color="#080c10"/>
+              </radialGradient>
+            </defs>
+            <rect width="800" height="450" fill="url(#g1)"/>
+            <!-- Lab beakers stylised -->
+            <circle cx="200" cy="280" r="60" fill="none" stroke="rgba(61,184,255,.15)" stroke-width="1.5"/>
+            <circle cx="200" cy="280" r="40" fill="none" stroke="rgba(61,184,255,.12)" stroke-width="1"/>
+            <circle cx="200" cy="280" r="20" fill="rgba(61,184,255,.08)"/>
+            <circle cx="600" cy="200" r="80" fill="none" stroke="rgba(0,229,176,.12)" stroke-width="1.5"/>
+            <circle cx="600" cy="200" r="55" fill="none" stroke="rgba(0,229,176,.08)" stroke-width="1"/>
+            <!-- connecting lines -->
+            <line x1="0" y1="0" x2="800" y2="450" stroke="rgba(61,184,255,.04)" stroke-width="1"/>
+            <line x1="800" y1="0" x2="0" y2="450" stroke="rgba(61,184,255,.04)" stroke-width="1"/>
+            <!-- DNA-like dots -->
+            <circle cx="150" cy="100" r="3" fill="rgba(61,184,255,.4)"/>
+            <circle cx="300" cy="160" r="2" fill="rgba(0,229,176,.3)"/>
+            <circle cx="500" cy="350" r="3" fill="rgba(61,184,255,.35)"/>
+            <circle cx="680" cy="380" r="2" fill="rgba(0,229,176,.25)"/>
+            <circle cx="720" cy="80" r="4" fill="rgba(61,184,255,.2)"/>
+            <!-- label -->
+            <text x="40" y="400" font-family="sans-serif" font-size="13" fill="rgba(61,184,255,.5)" letter-spacing="3">PLASMA FRACTIONATION FACILITY</text>
+          </svg>
+        </div>
+        <div class="gallery-overlay">
+          <div class="gallery-caption">
+            Plasma Fractionation Vision
+            <small>Nepal's first integrated biologics manufacturing platform</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="gallery-item">
+        <div class="gallery-placeholder">
+          <svg width="100%" height="100%" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+            <defs>
+              <radialGradient id="g2" cx="60%" cy="30%" r="80%">
+                <stop offset="0%" stop-color="#162030"/>
+                <stop offset="100%" stop-color="#080c10"/>
+              </radialGradient>
+            </defs>
+            <rect width="400" height="300" fill="url(#g2)"/>
+            <!-- blood bag icon abstract -->
+            <rect x="150" y="60" width="100" height="130" rx="12" fill="none" stroke="rgba(61,184,255,.2)" stroke-width="2"/>
+            <rect x="165" y="75" width="70" height="90" rx="6" fill="rgba(61,184,255,.06)"/>
+            <line x1="200" y1="190" x2="200" y2="230" stroke="rgba(61,184,255,.3)" stroke-width="2"/>
+            <circle cx="200" cy="235" r="8" fill="none" stroke="rgba(61,184,255,.3)" stroke-width="2"/>
+            <text x="200" y="268" text-anchor="middle" font-family="sans-serif" font-size="10" fill="rgba(61,184,255,.45)" letter-spacing="2">PLASMA COLLECTION</text>
+          </svg>
+        </div>
+        <div class="gallery-overlay">
+          <div class="gallery-caption">
+            Plasma Collection Network
+            <small>Fractionation-grade donor traceability</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="gallery-item">
+        <div class="gallery-placeholder">
+          <svg width="100%" height="100%" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+            <defs>
+              <radialGradient id="g3" cx="40%" cy="60%" r="80%">
+                <stop offset="0%" stop-color="#0f2018"/>
+                <stop offset="100%" stop-color="#080c10"/>
+              </radialGradient>
+            </defs>
+            <rect width="400" height="300" fill="url(#g3)"/>
+            <!-- molecule hexagon -->
+            <polygon points="200,60 240,80 240,120 200,140 160,120 160,80" fill="none" stroke="rgba(0,229,176,.25)" stroke-width="2"/>
+            <polygon points="200,85 225,98 225,125 200,138 175,125 175,98" fill="rgba(0,229,176,.05)"/>
+            <circle cx="200" cy="110" r="15" fill="rgba(0,229,176,.12)"/>
+            <line x1="200" y1="140" x2="200" y2="180" stroke="rgba(0,229,176,.2)" stroke-width="1.5"/>
+            <line x1="160" y1="80" x2="120" y2="60" stroke="rgba(0,229,176,.15)" stroke-width="1"/>
+            <line x1="240" y1="80" x2="280" y2="60" stroke="rgba(0,229,176,.15)" stroke-width="1"/>
+            <circle cx="120" cy="60" r="6" fill="rgba(0,229,176,.2)"/>
+            <circle cx="280" cy="60" r="6" fill="rgba(0,229,176,.2)"/>
+            <text x="200" y="218" text-anchor="middle" font-family="sans-serif" font-size="10" fill="rgba(0,229,176,.45)" letter-spacing="2">IVIG &amp; BIOLOGICS</text>
+          </svg>
+        </div>
+        <div class="gallery-overlay">
+          <div class="gallery-caption">
+            Advanced Biologics R&amp;D
+            <small>IVIG, albumin and coagulation factors</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="gallery-item">
+        <div class="gallery-placeholder">
+          <svg width="100%" height="100%" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+            <defs>
+              <radialGradient id="g4" cx="50%" cy="50%" r="70%">
+                <stop offset="0%" stop-color="#1d1530"/>
+                <stop offset="100%" stop-color="#080c10"/>
+              </radialGradient>
+            </defs>
+            <rect width="400" height="300" fill="url(#g4)"/>
+            <!-- Nepal map outline abstract -->
+            <path d="M100,100 Q130,80 180,90 Q230,75 280,95 Q310,88 330,105 Q320,140 290,155 Q260,170 230,160 Q200,175 170,165 Q140,170 115,150 Q95,130 100,100Z" fill="none" stroke="rgba(197,100,255,.2)" stroke-width="2"/>
+            <path d="M100,100 Q130,80 180,90 Q230,75 280,95 Q310,88 330,105 Q320,140 290,155 Q260,170 230,160 Q200,175 170,165 Q140,170 115,150 Q95,130 100,100Z" fill="rgba(197,100,255,.04)"/>
+            <circle cx="200" cy="130" r="8" fill="rgba(197,100,255,.4)"/>
+            <circle cx="200" cy="130" r="20" fill="none" stroke="rgba(197,100,255,.2)" stroke-width="1"/>
+            <text x="200" y="218" text-anchor="middle" font-family="sans-serif" font-size="10" fill="rgba(197,100,255,.45)" letter-spacing="2">NEPAL HEALTH SECURITY</text>
+          </svg>
+        </div>
+        <div class="gallery-overlay">
+          <div class="gallery-caption">
+            National Health Security
+            <small>Reducing import dependency across Nepal</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 5 -->
+      <div class="gallery-item">
+        <div class="gallery-placeholder">
+          <svg width="100%" height="100%" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+            <defs>
+              <radialGradient id="g5" cx="50%" cy="50%" r="70%">
+                <stop offset="0%" stop-color="#1a2a1a"/>
+                <stop offset="100%" stop-color="#080c10"/>
+              </radialGradient>
+            </defs>
+            <rect width="400" height="300" fill="url(#g5)"/>
+            <!-- bar chart -->
+            <rect x="80" y="180" width="40" height="60" rx="4" fill="rgba(61,184,255,.15)"/>
+            <rect x="140" y="140" width="40" height="100" rx="4" fill="rgba(61,184,255,.2)"/>
+            <rect x="200" y="100" width="40" height="140" rx="4" fill="rgba(61,184,255,.25)"/>
+            <rect x="260" y="70" width="40" height="170" rx="4" fill="rgba(0,229,176,.25)"/>
+            <line x1="65" y1="240" x2="320" y2="240" stroke="rgba(255,255,255,.1)" stroke-width="1"/>
+            <text x="200" y="272" text-anchor="middle" font-family="sans-serif" font-size="10" fill="rgba(61,184,255,.45)" letter-spacing="2">MARKET GROWTH</text>
+          </svg>
+        </div>
+        <div class="gallery-overlay">
+          <div class="gallery-caption">
+            Market Opportunity
+            <small>USD 20–30M annual addressable market</small>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── NEPAL → WORLD BANNER ─────────────── -->
+<section id="global" style="padding:0; background:var(--bg); position:relative; overflow:hidden;">
+  <div class="ntw-banner">
+    <div class="ntw-glow-l"></div>
+    <div class="ntw-glow-r"></div>
+
+    <!-- animated arc SVG -->
+    <div class="ntw-arc" aria-hidden="true">
+      <svg viewBox="0 0 900 220" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <linearGradient id="arcGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%"   stop-color="#3db8ff" stop-opacity=".7"/>
+            <stop offset="50%"  stop-color="#00e5b0" stop-opacity="1"/>
+            <stop offset="100%" stop-color="#3db8ff" stop-opacity=".4"/>
+          </linearGradient>
+          <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 Z" fill="#00e5b0"/>
+          </marker>
+        </defs>
+        <!-- arc path -->
+        <path d="M 80,170 Q 450,10 820,170"
+              fill="none"
+              stroke="url(#arcGrad)"
+              stroke-width="2"
+              stroke-dasharray="8 6"
+              marker-end="url(#arrow)"
+              opacity=".8"/>
+        <!-- Nepal dot -->
+        <circle cx="80" cy="170" r="8" fill="#3db8ff"/>
+        <circle cx="80" cy="170" r="18" fill="none" stroke="#3db8ff" stroke-width="1" opacity=".35"/>
+        <!-- World dot -->
+        <circle cx="820" cy="170" r="8" fill="#00e5b0"/>
+        <circle cx="820" cy="170" r="18" fill="none" stroke="#00e5b0" stroke-width="1" opacity=".35"/>
+        <!-- labels -->
+        <text x="80"  y="200" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#3db8ff"  letter-spacing="3" font-weight="700">NEPAL</text>
+        <text x="820" y="200" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#00e5b0" letter-spacing="3" font-weight="700">THE WORLD</text>
+        <!-- midpoint annotation -->
+        <text x="450" y="42" text-anchor="middle" font-family="sans-serif" font-size="10" fill="rgba(255,255,255,.25)" letter-spacing="4">PLASMA · SCIENCE · IMPACT</text>
+      </svg>
+    </div>
+
+    <div class="ntw-content">
+      <p class="ntw-eyebrow">Our Vision</p>
+      <h2 class="ntw-headline">From Nepal<span class="ntw-arrow"> → </span>To the World</h2>
+      <p class="ntw-body">
+        What begins as a national health mission — eliminating Nepal's dependence on imported
+        plasma-derived medicines — is designed to grow into a regional manufacturing hub serving
+        South Asia and beyond. Nepal's plasma. Global-grade science. Life-saving reach.
+      </p>
+      <div class="ntw-pills">
+        <span class="ntw-pill">🇳🇵 &nbsp;Nepal-First</span>
+        <span class="ntw-pill ntw-pill--mid">🌏 &nbsp;South Asia</span>
+        <span class="ntw-pill ntw-pill--world">🌍 &nbsp;Global Export</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+
+<section id="partners">
+  <div class="partners-inner">
+    <p class="partners-label">Partnership Opportunities</p>
+    <div class="partners-grid">
+      <span class="partner-badge">Ministry of Health &amp; Population</span>
+      <span class="partner-badge">Department of Drug Administration</span>
+      <span class="partner-badge">National Public Health Laboratory</span>
+      <span class="partner-badge">Blood Transfusion Services</span>
+      <span class="partner-badge">Healthcare Funds</span>
+      <span class="partner-badge">Development Finance Institutions</span>
+      <span class="partner-badge">Impact Investors</span>
+      <span class="partner-badge">Plasma Fractionators</span>
+      <span class="partner-badge">Contract Manufacturing Organisations</span>
+      <span class="partner-badge">Global Health Agencies</span>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ─────────────── CONTACT ─────────────── -->
+<section id="contact">
+  <div class="contact-inner">
+    <div class="contact-left">
+      <p class="section-label">Get In Touch</p>
+      <h2 class="section-title">Partner, Invest, or Collaborate</h2>
+      <p class="section-subtitle">Whether you are a government agency, investor, healthcare organisation, or international partner — we welcome the conversation.</p>
+
+      <div class="contact-links">
+        <a class="contact-link-item" href="mailto:info@nbiologx.com">
+          <div class="contact-icon">✉️</div>
+          <span>info@nbiologx.com</span>
+        </a>
+        <a class="contact-link-item" href="tel:+97701234567">
+          <div class="contact-icon">📞</div>
+          <span>+977 01 234 5678</span>
+        </a>
+        <div class="contact-link-item">
+          <div class="contact-icon">📍</div>
+          <span>Kathmandu, Nepal</span>
+        </div>
+        <div class="contact-link-item">
+          <div class="contact-icon">🌐</div>
+          <span>www.nbiologx.com</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="contact-form">
+      <div class="form-title">Send Us a Message</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="fname">First Name</label>
+          <input type="text" id="fname" placeholder="Ramesh" />
+        </div>
+        <div class="form-group">
+          <label for="lname">Last Name</label>
+          <input type="text" id="lname" placeholder="Sharma" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" placeholder="name@organisation.org" />
+      </div>
+      <div class="form-group">
+        <label for="org">Organisation</label>
+        <input type="text" id="org" placeholder="Ministry / Hospital / Fund" />
+      </div>
+      <div class="form-group">
+        <label for="interest">Area of Interest</label>
+        <select id="interest">
+          <option value="" disabled selected>Select one…</option>
+          <option>Investment / Funding</option>
+          <option>Government / Regulatory Partnership</option>
+          <option>Healthcare Organisation Collaboration</option>
+          <option>Technology / Contract Manufacturing</option>
+          <option>Research &amp; Academic Partnership</option>
+          <option>Media &amp; Communications</option>
+          <option>General Enquiry</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="message">Message</label>
+        <textarea id="message" placeholder="Tell us about your interest or organisation…"></textarea>
+      </div>
+      <button class="form-submit" onclick="handleSubmit(this)">Send Message →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── FOOTER ─────────────── -->
+<footer>
+  <div class="footer-logo">N<span>Biologx</span></div>
+  <p class="footer-copy">© 2025 NBiologx &nbsp;·&nbsp; <span style="color:var(--accent2);">From Nepal to the World.</span></p>
+  <ul class="footer-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#opportunity">Strategy</a></li>
+    <li><a href="#team">Team</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</footer>
+
+<script>
+  /* Hamburger toggle */
+  const hamburger = document.getElementById('hamburger');
+  const navLinks  = document.getElementById('navLinks');
+  hamburger.addEventListener('click', () => navLinks.classList.toggle('open'));
+  navLinks.querySelectorAll('a').forEach(a =>
+    a.addEventListener('click', () => navLinks.classList.remove('open'))
+  );
+
+  /* Scroll-spy — subtle nav highlight */
+  const sections = document.querySelectorAll('section[id]');
+  const navAs    = document.querySelectorAll('.nav-links a');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        navAs.forEach(a => a.style.color = '');
+        const active = document.querySelector(`.nav-links a[href="#${e.target.id}"]`);
+        if (active && !active.classList.contains('nav-cta')) active.style.color = 'var(--accent)';
+      }
+    });
+  }, { threshold: .35 });
+  sections.forEach(s => observer.observe(s));
+
+  /* Fade-in on scroll */
+  const fadeEls = document.querySelectorAll('.phase-card, .team-card, .card-mini, .gallery-item, .market-band, .ntw-content, .ntw-arc');
+  const fadeObs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.opacity = '1';
+        e.target.style.transform = e.target.style.transform.replace('translateY(20px)', 'translateY(0)');
+        fadeObs.unobserve(e.target);
+      }
+    });
+  }, { threshold: .12 });
+  fadeEls.forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform += ' translateY(20px)';
+    el.style.transition = (el.style.transition || '') + ', opacity .6s ease, transform .6s ease';
+    fadeObs.observe(el);
+  });
+
+  /* Form submit handler */
+  function handleSubmit(btn) {
+    const name  = document.getElementById('fname').value;
+    const email = document.getElementById('email').value;
+    if (!name || !email) {
+      btn.textContent = '⚠ Please fill in required fields';
+      btn.style.background = '#b85c3d';
+      setTimeout(() => { btn.textContent = 'Send Message →'; btn.style.background = ''; }, 2500);
+      return;
+    }
+    btn.textContent = '✓ Message Sent! We\'ll be in touch.';
+    btn.style.background = 'var(--accent2)';
+    btn.disabled = true;
+  }
+</script>
+
+</body>
+</html>
