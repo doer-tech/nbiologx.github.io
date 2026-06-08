@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NBiologx Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--navy:#0d1b3e;--navy-deep:#081228;--gold:#c9a84c;--gold-light:#e4c97a;--gold-pale:#f3e6b8;--gold-dim:#8a6f32;--white:#fff;--border:rgba(201,168,76,0.22);--text-muted:rgba(255,255,255,0.55);--red:#e05555;--green:#55b97e}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:"Jost",sans-serif;background:var(--navy-deep);color:var(--white);min-height:100vh}
+  ::-webkit-scrollbar{width:3px}
+  ::-webkit-scrollbar-track{background:var(--navy-deep)}
+  ::-webkit-scrollbar-thumb{background:var(--gold-dim)}
+
+  /* LOGIN */
+  #login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse 80% 80% at 50% 30%,rgba(201,168,76,.08),transparent),linear-gradient(135deg,#040c1a,#0d1b3e,#040c1a)}
+  .login-box{background:rgba(255,255,255,.025);border:1px solid var(--border);padding:52px 48px;max-width:420px;width:100%;text-align:center}
+  .login-logo{height:80px;width:auto;margin:0 auto 24px;display:block;filter:drop-shadow(0 4px 20px rgba(201,168,76,.3))}
+  .login-title{font-family:"Cormorant Garamond",serif;font-size:2rem;font-weight:600;color:var(--white);margin-bottom:6px}
+  .login-sub{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gold-dim);margin-bottom:36px}
+  .login-field{margin-bottom:16px;text-align:left}
+  .login-label{display:block;font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--gold-dim);margin-bottom:7px}
+  .login-input{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(201,168,76,.2);color:var(--white);padding:13px 16px;font-family:"Jost",sans-serif;font-size:14px;font-weight:300;outline:none;transition:border-color .3s}
+  .login-input:focus{border-color:var(--gold)}
+  .login-btn{width:100%;background:linear-gradient(135deg,var(--gold),var(--gold-dim));color:var(--navy-deep);border:none;padding:14px;font-family:"Jost",sans-serif;font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .3s;margin-top:8px}
+  .login-btn:hover{background:linear-gradient(135deg,var(--gold-light),var(--gold));box-shadow:0 8px 24px rgba(201,168,76,.3)}
+  .login-error{background:rgba(224,85,85,.12);border:1px solid rgba(224,85,85,.3);color:#f08080;padding:10px 14px;font-size:12px;margin-bottom:16px;display:none}
+  .login-back{display:block;margin-top:20px;font-size:11px;color:var(--gold-dim);text-decoration:none;letter-spacing:1px;text-transform:uppercase;transition:color .3s}
+  .login-back:hover{color:var(--gold-light)}
+
+  /* ADMIN LAYOUT */
+  #admin-screen{display:none}
+  .admin-nav{position:fixed;top:0;left:0;right:0;z-index:999;background:rgba(8,18,40,.97);border-bottom:1px solid var(--border);padding:0 5%;display:flex;align-items:center;justify-content:space-between;height:66px}
+  .admin-brand{display:flex;align-items:center;gap:12px}
+  .admin-brand img{height:44px;width:auto;object-fit:contain;border-radius:3px}
+  .admin-brand-text{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gold-dim)}
+  .admin-actions{display:flex;gap:12px;align-items:center}
+  .admin-user{font-size:11px;color:rgba(255,255,255,.5);letter-spacing:1px}
+  .admin-logout{background:none;border:1px solid rgba(224,85,85,.4);color:#f08080;padding:6px 16px;font-size:10.5px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .3s;font-family:"Jost",sans-serif}
+  .admin-logout:hover{background:rgba(224,85,85,.15)}
+  .view-site{text-decoration:none;border:1px solid var(--border);color:var(--gold-dim);padding:6px 16px;font-size:10.5px;letter-spacing:1.5px;text-transform:uppercase;transition:all .3s}
+  .view-site:hover{background:rgba(201,168,76,.08);color:var(--gold-light)}
+
+  /* ADMIN BODY */
+  .admin-body{padding:90px 5% 60px;display:grid;grid-template-columns:220px 1fr;gap:28px}
+  .admin-sidebar{position:sticky;top:90px;height:fit-content}
+  .sidebar-section{margin-bottom:6px}
+  .sidebar-item{display:flex;align-items:center;gap:10px;padding:10px 14px;font-size:12px;font-weight:500;letter-spacing:.5px;color:rgba(255,255,255,.55);cursor:pointer;transition:all .3s;border-left:2px solid transparent}
+  .sidebar-item:hover,.sidebar-item.active{color:var(--gold-light);border-left-color:var(--gold);background:rgba(201,168,76,.06)}
+  .sidebar-item .icon{font-size:16px;width:22px;text-align:center}
+  .sidebar-title{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:rgba(201,168,76,.4);padding:14px 14px 6px;font-weight:600}
+
+  /* PANELS */
+  .admin-panel{display:none}
+  .admin-panel.active{display:block}
+  .panel-header{margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid var(--border)}
+  .panel-title{font-family:"Cormorant Garamond",serif;font-size:1.9rem;font-weight:600;color:var(--white);margin-bottom:4px}
+  .panel-sub{font-size:12px;color:var(--text-muted);font-weight:300;letter-spacing:.3px}
+
+  /* CARDS */
+  .card{background:rgba(255,255,255,.025);border:1px solid var(--border);padding:28px;margin-bottom:20px}
+  .card-title{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:18px;display:flex;align-items:center;gap:8px}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .form-group{margin-bottom:16px}
+  .form-label{display:block;font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--gold-dim);margin-bottom:7px}
+  .form-input,.form-select,.form-textarea{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(201,168,76,.2);color:var(--white);padding:11px 15px;font-family:"Jost",sans-serif;font-size:13px;font-weight:300;outline:none;transition:border-color .3s}
+  .form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--gold)}
+  .form-textarea{resize:vertical;min-height:90px}
+  .form-select option{background:var(--navy)}
+  .btn-save{background:linear-gradient(135deg,var(--gold),var(--gold-dim));color:var(--navy-deep);border:none;padding:11px 28px;font-family:"Jost",sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .3s}
+  .btn-save:hover{background:linear-gradient(135deg,var(--gold-light),var(--gold));box-shadow:0 6px 20px rgba(201,168,76,.25)}
+  .btn-danger{background:transparent;border:1px solid rgba(224,85,85,.4);color:#f08080;padding:8px 18px;font-family:"Jost",sans-serif;font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .3s}
+  .btn-danger:hover{background:rgba(224,85,85,.12)}
+  .btn-outline-sm{background:transparent;border:1px solid var(--border);color:var(--gold-dim);padding:8px 18px;font-family:"Jost",sans-serif;font-size:10px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .3s}
+  .btn-outline-sm:hover{border-color:var(--gold);color:var(--gold-light)}
+
+  /* TOAST */
+  .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--green);color:#fff;padding:12px 28px;font-size:12.5px;font-weight:500;letter-spacing:.5px;z-index:9999;transition:transform .3s;border-radius:2px}
+  .toast.show{transform:translateX(-50%) translateY(0)}
+  .toast.error{background:var(--red)}
+
+  /* NEWS ITEMS LIST */
+  .news-list{display:flex;flex-direction:column;gap:10px}
+  .news-list-item{background:rgba(255,255,255,.02);border:1px solid var(--border);padding:14px 18px;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;transition:all .3s}
+  .news-list-item:hover{border-color:rgba(201,168,76,.3)}
+  .news-item-info{flex:1}
+  .news-item-cat{font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:4px}
+  .news-item-title{font-size:13.5px;font-weight:500;color:var(--white);margin-bottom:3px}
+  .news-item-date{font-size:11px;color:var(--text-muted)}
+  .news-item-actions{display:flex;gap:8px;flex-shrink:0}
+
+  /* STATS */
+  .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+  .stat-card{background:rgba(255,255,255,.025);border:1px solid var(--border);padding:20px;text-align:center}
+  .stat-num{font-family:"Cormorant Garamond",serif;font-size:2rem;font-weight:600;color:var(--gold-light)}
+  .stat-lbl{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);margin-top:4px}
+
+  /* PASS CHANGE */
+  .pass-rules{font-size:11px;color:var(--text-muted);margin-top:6px;line-height:1.6}
+
+  /* RESPONSIVE */
+  @media(max-width:768px){
+    .admin-body{grid-template-columns:1fr}
+    .admin-sidebar{position:static}
+    .stats-row{grid-template-columns:repeat(2,1fr)}
+    .form-row{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+  <div class="login-box">
+    <img src="Logo.jpeg" alt="NBiologx" class="login-logo">
+    <div class="login-title">Admin Access</div>
+    <div class="login-sub">NBiologx Website Management</div>
+    <div class="login-error" id="login-error">Incorrect credentials. Please try again.</div>
+    <div class="login-field">
+      <label class="login-label">User ID</label>
+      <input type="text" class="login-input" id="login-user" placeholder="Enter user ID" autocomplete="username">
+    </div>
+    <div class="login-field">
+      <label class="login-label">Password</label>
+      <input type="password" class="login-input" id="login-pass" placeholder="Enter password" autocomplete="current-password">
+    </div>
+    <button class="login-btn" onclick="doLogin()">Sign In to Admin Panel</button>
+    <a href="index.html" class="login-back">← Back to Website</a>
+  </div>
+</div>
+
+<!-- ADMIN SCREEN -->
+<div id="admin-screen">
+  <nav class="admin-nav">
+    <div class="admin-brand">
+      <img src="Logo.jpeg" alt="NBiologx">
+      <div class="admin-brand-text">Admin Panel</div>
+    </div>
+    <div class="admin-actions">
+      <span class="admin-user" id="admin-user-display">admin</span>
+      <a href="index.html" class="view-site" target="_blank">View Site ↗</a>
+      <button class="admin-logout" onclick="doLogout()">Log Out</button>
+    </div>
+  </nav>
+
+  <div class="admin-body">
+    <!-- SIDEBAR -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-title">Dashboard</div>
+      <div class="sidebar-item active" onclick="showPanel('dashboard',this)"><span class="icon">📊</span> Overview</div>
+      <div class="sidebar-title">Content</div>
+      <div class="sidebar-item" onclick="showPanel('news-mgr',this)"><span class="icon">📰</span> News Items</div>
+      <div class="sidebar-item" onclick="showPanel('hero-editor',this)"><span class="icon">🏠</span> Hero Section</div>
+      <div class="sidebar-item" onclick="showPanel('contact-editor',this)"><span class="icon">📍</span> Contact Info</div>
+      <div class="sidebar-item" onclick="showPanel('about-editor',this)"><span class="icon">ℹ️</span> About Text</div>
+      <div class="sidebar-title">Settings</div>
+      <div class="sidebar-item" onclick="showPanel('credentials',this)"><span class="icon">🔐</span> Change Password</div>
+      <div class="sidebar-item" onclick="showPanel('export',this)"><span class="icon">💾</span> Export / Backup</div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main>
+
+      <!-- DASHBOARD -->
+      <div class="admin-panel active" id="panel-dashboard">
+        <div class="panel-header">
+          <div class="panel-title">Welcome Back</div>
+          <div class="panel-sub">NBiologx website management dashboard — manage content without touching code.</div>
+        </div>
+        <div class="stats-row">
+          <div class="stat-card"><div class="stat-num" id="stat-news">3</div><div class="stat-lbl">News Items</div></div>
+          <div class="stat-card"><div class="stat-num">4</div><div class="stat-lbl">Phases</div></div>
+          <div class="stat-card"><div class="stat-num">4</div><div class="stat-lbl">Leaders</div></div>
+          <div class="stat-card"><div class="stat-num" id="stat-sessions">1</div><div class="stat-lbl">Active Session</div></div>
+        </div>
+        <div class="card">
+          <div class="card-title">⚡ Quick Actions</div>
+          <div style="display:flex;flex-wrap:wrap;gap:10px">
+            <button class="btn-outline-sm" onclick="showPanel('news-mgr',document.querySelector('[onclick*=news-mgr]'))">+ Add News Item</button>
+            <button class="btn-outline-sm" onclick="showPanel('contact-editor',document.querySelector('[onclick*=contact-editor]'))">Update Contact Info</button>
+            <button class="btn-outline-sm" onclick="showPanel('hero-editor',document.querySelector('[onclick*=hero-editor]'))">Edit Hero Text</button>
+            <button class="btn-outline-sm" onclick="showPanel('credentials',document.querySelector('[onclick*=credentials]'))">Change Password</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">📋 Company Info</div>
+          <div style="font-size:13px;color:var(--text-muted);line-height:1.9">
+            <div>Company: <span style="color:var(--white)">NBiologx Private Limited</span></div>
+            <div>Incorporated: <span style="color:var(--gold-light)">2nd October 2024</span></div>
+            <div>Location: <span style="color:var(--white)">Kathmandu, Nepal</span></div>
+            <div>Email: <span style="color:var(--white)">nbiologx@gmail.com</span></div>
+            <div>Phone: <span style="color:var(--white)">+977 9851177995</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NEWS MANAGER -->
+      <div class="admin-panel" id="panel-news-mgr">
+        <div class="panel-header">
+          <div class="panel-title">News Manager</div>
+          <div class="panel-sub">Add, edit and remove news items shown on the website.</div>
+        </div>
+        <div class="card">
+          <div class="card-title">➕ Add New Item</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Category</label>
+              <input type="text" class="form-input" id="n-cat" placeholder="e.g. Company Launch, Partnership, Milestone">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Date</label>
+              <input type="text" class="form-input" id="n-date" placeholder="e.g. 2nd October 2024">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Headline</label>
+            <input type="text" class="form-input" id="n-title" placeholder="News headline">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Summary</label>
+            <textarea class="form-textarea" id="n-excerpt" placeholder="Brief description of the news..."></textarea>
+          </div>
+          <button class="btn-save" onclick="addNewsItem()">Add News Item</button>
+        </div>
+        <div class="card">
+          <div class="card-title">📋 Current News Items</div>
+          <div class="news-list" id="admin-news-list"></div>
+        </div>
+      </div>
+
+      <!-- HERO EDITOR -->
+      <div class="admin-panel" id="panel-hero-editor">
+        <div class="panel-header">
+          <div class="panel-title">Hero Section</div>
+          <div class="panel-sub">Edit the main headline, tagline, and sub-text on the landing hero.</div>
+        </div>
+        <div class="card">
+          <div class="card-title">✏️ Edit Hero Content</div>
+          <div class="form-group">
+            <label class="form-label">Badge Text</label>
+            <input type="text" class="form-input" id="h-badge" value="Nepal's First Plasma-Derived Medicines Platform">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Main Headline (use line breaks with \n)</label>
+            <input type="text" class="form-input" id="h-headline" value="Building Nepal's Biological Future">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Italic Tagline</label>
+            <input type="text" class="form-input" id="h-tagline" value="From Nepal to the World">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Sub-paragraph</label>
+            <textarea class="form-textarea" id="h-sub">NBiologx is establishing Nepal's first integrated plasma recovery, fractionation, and PDMP ecosystem — transforming Nepal's own blood resources into life-saving medicines for Nepalis and beyond.</textarea>
+          </div>
+          <button class="btn-save" onclick="saveHero()">Save Hero Content</button>
+          <p style="font-size:11px;color:var(--text-muted);margin-top:12px">Note: Changes are saved to browser storage. Use Export to download updated HTML.</p>
+        </div>
+      </div>
+
+      <!-- CONTACT EDITOR -->
+      <div class="admin-panel" id="panel-contact-editor">
+        <div class="panel-header">
+          <div class="panel-title">Contact Information</div>
+          <div class="panel-sub">Update the email, phone, WhatsApp number, and address shown on the site.</div>
+        </div>
+        <div class="card">
+          <div class="card-title">📞 Edit Contact Details</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Email Address</label>
+              <input type="email" class="form-input" id="c-email" value="nbiologx@gmail.com">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Phone / WhatsApp</label>
+              <input type="text" class="form-input" id="c-phone" value="+977 9851177995">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Location</label>
+            <input type="text" class="form-input" id="c-location" value="Kathmandu, Nepal">
+          </div>
+          <div class="form-group">
+            <label class="form-label">WhatsApp Number (digits only, with country code)</label>
+            <input type="text" class="form-input" id="c-wa" value="9779851177995">
+          </div>
+          <button class="btn-save" onclick="saveContact()">Save Contact Info</button>
+        </div>
+      </div>
+
+      <!-- ABOUT EDITOR -->
+      <div class="admin-panel" id="panel-about-editor">
+        <div class="panel-header">
+          <div class="panel-title">About Section</div>
+          <div class="panel-sub">Edit the mission statement and about text.</div>
+        </div>
+        <div class="card">
+          <div class="card-title">✏️ Company Description</div>
+          <div class="form-group">
+            <label class="form-label">Main About Paragraph</label>
+            <textarea class="form-textarea" style="min-height:120px" id="a-main">NBiologx is a Nepal-based biotechnology company established to develop the country's first integrated plasma recovery, fractionation, and plasma-derived medicinal products (PDMPs) ecosystem.</textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Mission Statement (highlighted quote)</label>
+            <textarea class="form-textarea" id="a-mission">Our mission: ensure no Nepali patient is denied access to essential plasma-derived medicines because of supply shortages, import dependency, or affordability barriers.</textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Second Paragraph</label>
+            <textarea class="form-textarea" style="min-height:120px" id="a-second">By leveraging Nepal's existing blood collection infrastructure and aligning with World Health Organization (WHO) recommendations, NBiologx establishes a nationally coordinated plasma utilization program that converts surplus plasma into high-value therapeutic products — and positions Nepal as a future regional biologics hub.</textarea>
+          </div>
+          <button class="btn-save" onclick="saveAbout()">Save About Content</button>
+        </div>
+      </div>
+
+      <!-- CREDENTIALS -->
+      <div class="admin-panel" id="panel-credentials">
+        <div class="panel-header">
+          <div class="panel-title">Change Password</div>
+          <div class="panel-sub">Update admin login credentials. Store these safely — they cannot be recovered.</div>
+        </div>
+        <div class="card">
+          <div class="card-title">🔐 Update Credentials</div>
+          <div class="form-group">
+            <label class="form-label">Current Password</label>
+            <input type="password" class="form-input" id="p-current" placeholder="Current password">
+          </div>
+          <div class="form-group">
+            <label class="form-label">New User ID</label>
+            <input type="text" class="form-input" id="p-newuser" placeholder="New user ID">
+          </div>
+          <div class="form-group">
+            <label class="form-label">New Password</label>
+            <input type="password" class="form-input" id="p-new" placeholder="New password (min 8 characters)">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Confirm New Password</label>
+            <input type="password" class="form-input" id="p-confirm" placeholder="Confirm new password">
+          </div>
+          <div class="pass-rules">Password requirements: minimum 8 characters. Store your credentials in a secure location — recovery requires file edit.</div>
+          <button class="btn-save" style="margin-top:16px" onclick="changePassword()">Update Credentials</button>
+        </div>
+      </div>
+
+      <!-- EXPORT -->
+      <div class="admin-panel" id="panel-export">
+        <div class="panel-header">
+          <div class="panel-title">Export &amp; Backup</div>
+          <div class="panel-sub">Download your content data as JSON for backup, or generate an updated HTML note.</div>
+        </div>
+        <div class="card">
+          <div class="card-title">💾 Content Backup</div>
+          <p style="font-size:13px;color:var(--text-muted);line-height:1.8;margin-bottom:20px">
+            Export all your edited content (news items, hero text, contact info) as a JSON file. This can be imported or used to manually update the website HTML.
+          </p>
+          <div style="display:flex;gap:12px;flex-wrap:wrap">
+            <button class="btn-save" onclick="exportData()">Download Content JSON</button>
+            <button class="btn-outline-sm" onclick="exportChangelog()">Download Change Log</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">📋 Current Content Summary</div>
+          <pre id="export-preview" style="font-size:11px;color:var(--text-muted);line-height:1.7;white-space:pre-wrap;max-height:300px;overflow-y:auto;padding:12px;background:rgba(0,0,0,.3);border:1px solid var(--border)">Loading...</pre>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DEFAULT CREDENTIALS (stored in localStorage, changeable)
+const DEFAULT_USER = 'nbiologx_admin';
+const DEFAULT_PASS = 'NBiologx@2024';
+
+function getCredentials() {
+  return {
+    user: localStorage.getItem('nb_user') || DEFAULT_USER,
+    pass: localStorage.getItem('nb_pass') || DEFAULT_PASS
+  };
+}
+
+// ── NEWS DATA (persisted in localStorage)
+function getNews() {
+  try {
+    return JSON.parse(localStorage.getItem('nb_news')) || [
+      { id:1, cat:'Company Launch', title:"NBiologx Private Limited — Nepal's First Plasma Biologics Company — Officially Incorporated", date:'2nd October 2024', excerpt:"NBiologx Private Limited was officially incorporated on 2nd October 2024, marking a historic milestone as Nepal's first company dedicated to developing an integrated plasma recovery and plasma-derived medicinal products (PDMP) ecosystem." },
+      { id:2, cat:'Strategy', title:'NBiologx Outlines Four-Phase Development Strategy for Domestic Plasma Program', date:'2024 – 2025', excerpt:"The company announces its phased development roadmap, beginning with fractionation-grade plasma recovery and international contract fractionation partnerships." },
+      { id:3, cat:'Vision', title:'From Nepal to the World: NBiologx Sets Sights on Regional Biologics Hub', date:'2025', excerpt:"Phase IV of NBiologx's strategy envisions Nepal as a regional manufacturing hub for plasma-derived medicinal products, serving South Asian markets from a domestic platform." }
+    ];
+  } catch(e) { return []; }
+}
+function saveNews(data) { localStorage.setItem('nb_news', JSON.stringify(data)); }
+
+// ── CHANGE LOG
+function logChange(action) {
+  const log = JSON.parse(localStorage.getItem('nb_changelog') || '[]');
+  log.unshift({ time: new Date().toISOString(), action });
+  if(log.length > 100) log.pop();
+  localStorage.setItem('nb_changelog', JSON.stringify(log));
+}
+
+// ── TOAST
+function toast(msg, isErr) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (isErr ? ' error' : '');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+// ── LOGIN
+function doLogin() {
+  const user = document.getElementById('login-user').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  const creds = getCredentials();
+  if(user === creds.user && pass === creds.pass) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('admin-screen').style.display = 'block';
+    document.getElementById('admin-user-display').textContent = user;
+    document.getElementById('login-error').style.display = 'none';
+    renderNewsList();
+    updateExportPreview();
+    logChange('Login: ' + user);
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+  }
+}
+document.getElementById('login-pass').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+document.getElementById('login-user').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+
+// ── LOGOUT
+function doLogout() {
+  logChange('Logout');
+  document.getElementById('admin-screen').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('login-user').value = '';
+  document.getElementById('login-pass').value = '';
+}
+
+// ── SIDEBAR NAVIGATION
+function showPanel(id, el) {
+  document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  if(el) el.classList.add('active');
+  if(id === 'export') updateExportPreview();
+}
+
+// ── NEWS MANAGEMENT
+function renderNewsList() {
+  const news = getNews();
+  const list = document.getElementById('admin-news-list');
+  document.getElementById('stat-news').textContent = news.length;
+  list.innerHTML = news.map(n => `
+    <div class="news-list-item" id="ni-${n.id}">
+      <div class="news-item-info">
+        <div class="news-item-cat">${n.cat}</div>
+        <div class="news-item-title">${n.title}</div>
+        <div class="news-item-date">${n.date}</div>
+      </div>
+      <div class="news-item-actions">
+        <button class="btn-danger" onclick="deleteNews(${n.id})">Delete</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function addNewsItem() {
+  const cat = document.getElementById('n-cat').value.trim() || 'Update';
+  const title = document.getElementById('n-title').value.trim();
+  const date = document.getElementById('n-date').value.trim();
+  const excerpt = document.getElementById('n-excerpt').value.trim();
+  if(!title) { toast('Please enter a headline.', true); return; }
+  const news = getNews();
+  news.push({ id: Date.now(), cat, title, date, excerpt });
+  saveNews(news);
+  renderNewsList();
+  document.getElementById('n-cat').value = '';
+  document.getElementById('n-title').value = '';
+  document.getElementById('n-date').value = '';
+  document.getElementById('n-excerpt').value = '';
+  toast('News item added!');
+  logChange('Added news: ' + title);
+}
+
+function deleteNews(id) {
+  if(!confirm('Delete this news item?')) return;
+  const news = getNews().filter(n => n.id !== id);
+  saveNews(news);
+  renderNewsList();
+  toast('News item deleted.');
+  logChange('Deleted news item id: ' + id);
+}
+
+// ── HERO
+function saveHero() {
+  const data = {
+    badge: document.getElementById('h-badge').value,
+    headline: document.getElementById('h-headline').value,
+    tagline: document.getElementById('h-tagline').value,
+    sub: document.getElementById('h-sub').value
+  };
+  localStorage.setItem('nb_hero', JSON.stringify(data));
+  toast('Hero content saved!');
+  logChange('Saved hero content');
+}
+
+// ── CONTACT
+function saveContact() {
+  const data = {
+    email: document.getElementById('c-email').value,
+    phone: document.getElementById('c-phone').value,
+    location: document.getElementById('c-location').value,
+    wa: document.getElementById('c-wa').value
+  };
+  localStorage.setItem('nb_contact', JSON.stringify(data));
+  toast('Contact info saved!');
+  logChange('Saved contact info');
+}
+
+// ── ABOUT
+function saveAbout() {
+  const data = {
+    main: document.getElementById('a-main').value,
+    mission: document.getElementById('a-mission').value,
+    second: document.getElementById('a-second').value
+  };
+  localStorage.setItem('nb_about', JSON.stringify(data));
+  toast('About content saved!');
+  logChange('Saved about content');
+}
+
+// ── CHANGE PASSWORD
+function changePassword() {
+  const curr = document.getElementById('p-current').value;
+  const newUser = document.getElementById('p-newuser').value.trim();
+  const newPass = document.getElementById('p-new').value;
+  const conf = document.getElementById('p-confirm').value;
+  const creds = getCredentials();
+  if(curr !== creds.pass) { toast('Current password incorrect.', true); return; }
+  if(!newUser) { toast('User ID cannot be empty.', true); return; }
+  if(newPass.length < 8) { toast('Password must be at least 8 characters.', true); return; }
+  if(newPass !== conf) { toast('Passwords do not match.', true); return; }
+  localStorage.setItem('nb_user', newUser);
+  localStorage.setItem('nb_pass', newPass);
+  document.getElementById('admin-user-display').textContent = newUser;
+  document.getElementById('p-current').value = '';
+  document.getElementById('p-new').value = '';
+  document.getElementById('p-confirm').value = '';
+  toast('Credentials updated! Use new credentials on next login.');
+  logChange('Credentials changed for user: ' + newUser);
+}
+
+// ── EXPORT
+function updateExportPreview() {
+  const data = {
+    news: getNews(),
+    hero: JSON.parse(localStorage.getItem('nb_hero') || '{}'),
+    contact: JSON.parse(localStorage.getItem('nb_contact') || '{}'),
+    about: JSON.parse(localStorage.getItem('nb_about') || '{}'),
+    exportedAt: new Date().toISOString()
+  };
+  document.getElementById('export-preview').textContent = JSON.stringify(data, null, 2);
+}
+
+function exportData() {
+  const data = {
+    news: getNews(),
+    hero: JSON.parse(localStorage.getItem('nb_hero') || '{}'),
+    contact: JSON.parse(localStorage.getItem('nb_contact') || '{}'),
+    about: JSON.parse(localStorage.getItem('nb_about') || '{}'),
+    exportedAt: new Date().toISOString()
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'nbiologx-content-' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+  toast('Content exported!');
+  logChange('Exported content JSON');
+}
+
+function exportChangelog() {
+  const log = JSON.parse(localStorage.getItem('nb_changelog') || '[]');
+  const blob = new Blob([JSON.stringify(log, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'nbiologx-changelog-' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+}
+
+// Load saved form values
+(function loadSaved() {
+  const hero = JSON.parse(localStorage.getItem('nb_hero') || '{}');
+  if(hero.badge) document.getElementById('h-badge').value = hero.badge;
+  if(hero.headline) document.getElementById('h-headline').value = hero.headline;
+  if(hero.tagline) document.getElementById('h-tagline').value = hero.tagline;
+  if(hero.sub) document.getElementById('h-sub').value = hero.sub;
+  const contact = JSON.parse(localStorage.getItem('nb_contact') || '{}');
+  if(contact.email) document.getElementById('c-email').value = contact.email;
+  if(contact.phone) document.getElementById('c-phone').value = contact.phone;
+  if(contact.location) document.getElementById('c-location').value = contact.location;
+  if(contact.wa) document.getElementById('c-wa').value = contact.wa;
+  const about = JSON.parse(localStorage.getItem('nb_about') || '{}');
+  if(about.main) document.getElementById('a-main').value = about.main;
+  if(about.mission) document.getElementById('a-mission').value = about.mission;
+  if(about.second) document.getElementById('a-second').value = about.second;
+})();
+</script>
+</body>
+</html>
